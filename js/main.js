@@ -3,78 +3,56 @@ if (localStorage.getItem('websiteShutdown') === 'true') {
     window.location.href = 'shutdown.html';
 }
 
-document.getElementById('loginForm').addEventListener('submit', function (event) {
-    event.preventDefault();
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-    if (username === "interstellar" && password === "newpassword123") {
-        localStorage.setItem('loggedIn', true);
-        window.location.href = 'intro.html';
-    } else {
-        alert('Incorrect credentials');
-    }
-});
+document.addEventListener("DOMContentLoaded", () => {
+    const loginForm = document.getElementById("loginForm");
+    const navButtons = document.getElementById("navButtons");
+    const disabledMessage = document.getElementById("disabledMessage");
 
-// Button Actions
-document.querySelector('.singularity-button').addEventListener('click', () => {
-    window.location.href = 'intro.html';
-});
+    // Admin login status - toggled via admin panel
+    let loginEnabled = true; // This should be dynamically updated from your server in production
 
-document.querySelector('.logout-button').addEventListener('click', () => {
-    localStorage.removeItem('loggedIn');
-    window.location.href = 'logout.html';
-});
+    // Sample login credentials
+    const validUsername = "interstellar";
+    const validPassword = "newpassword123";
 
-document.querySelector('.panic-button').addEventListener('click', () => {
-    window.location.href = 'https://classroom.google.com';
-});
+    // Admin credentials
+    const adminUsername = "admin";
+    const adminPassword = "ilovefruit123";
 
-// Double "Esc" Function
-let escCount = 0;
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        escCount++;
-        if (escCount === 2) {
-            window.location.href = 'https://classroom.google.com';
+    loginForm.addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent form submission
+        
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        // Check if login is enabled
+        if (!loginEnabled) {
+            disabledMessage.style.display = "block";
+            return;
         }
-        setTimeout(() => escCount = 0, 300);
-    }
+
+        // Validate login credentials
+        if ((username === validUsername && password === validPassword) || 
+            (username === adminUsername && password === adminPassword)) {
+            // If login is successful, show navigation buttons
+            navButtons.style.display = "block";
+            document.querySelector(".login-container").style.display = "none"; // Hide login form
+            
+            // Check if the user is admin
+            if (username === adminUsername) {
+                alert("Welcome, Admin! You have access to the admin panel.");
+                // Here you could redirect to the admin panel page if desired
+                // window.location.href = 'admin.html'; 
+            }
+        } else {
+            alert("Invalid username or password. Please try again.");
+        }
+    });
 });
 
-// Track number of active users
-let activeUsers = JSON.parse(localStorage.getItem('activeUsers')) || 0;
-
-// Check if login is disabled
-if (localStorage.getItem('loginDisabled') === 'true') {
-    document.getElementById('loginButton').disabled = true;
-    document.getElementById('disabledMessage').style.display = 'block';
-}
-
-// Handle login
-document.getElementById('loginForm').addEventListener('submit', function (event) {
-    event.preventDefault();
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-    
-    if (username === "interstellar" && password === "newpassword123") {
-        localStorage.setItem('loggedIn', true);
-        activeUsers++;
-        localStorage.setItem('activeUsers', JSON.stringify(activeUsers));
-        window.location.href = 'intro.html';
-    } else if (username === "admin" && password === "ilovefruit123") {
-        localStorage.setItem('adminLoggedIn', true);
-        activeUsers++;
-        localStorage.setItem('activeUsers', JSON.stringify(activeUsers));
-        window.location.href = 'admin.html';
-    } else {
-        alert('Incorrect credentials');
-    }
-});
-
+// Logout function
 function logout() {
-    localStorage.removeItem('loggedIn');
-    localStorage.removeItem('adminLoggedIn');
-    activeUsers--;
-    localStorage.setItem('activeUsers', JSON.stringify(activeUsers));
-    window.location.href = 'index.html';
+    // Here you could add logic to handle logout, such as clearing session data
+    alert("You have been logged out.");
+    window.location.href = "index.html"; // Redirect to login page after logout
 }
